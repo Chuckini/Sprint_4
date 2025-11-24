@@ -1,0 +1,156 @@
+package tests;
+import org.openqa.selenium.*;
+import io.github.bonigarcia.wdm.WebDriverManager;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.chrome.ChromeOptions;
+import pageobject.HomePageScooter;
+import pageobject.OrderDetailsPage;
+import pageobject.ScooterOrderPage;
+
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.concurrent.TimeUnit;
+
+import static org.junit.Assert.assertTrue;
+
+@RunWith(Parameterized.class)
+public class ScooterOrder {
+    public WebDriver driver;
+    public HomePageScooter homePage;
+    public ScooterOrderPage scooterOrder;
+    public OrderDetailsPage orderDetails;
+
+
+
+    // параметры, которые будут применяться в тестах
+    String firstName;
+    String lastName;
+    String address;
+    String metroStation;
+    String phoneNumber;
+    String date;
+    String rentDays;
+    String colorId;
+    String comment;
+
+    // конструктор
+    public ScooterOrder(String firstName, String lastName, String address, String metroStation, String phoneNumber, String date, String rentDays, String colorId, String comment) {
+        //Имя
+        this.firstName = firstName;
+        // Фамилия
+        this.lastName = lastName;
+        // адрес
+        this.address = address;
+        //станция Метро
+        this.metroStation = metroStation;
+        // номер телефона формат: 87463546374 (11-13 символов в поле, только цифры и + начинаются с 8 или +7)
+        this.phoneNumber = phoneNumber;
+        // дата формат: 29.11.2025
+        this.date = date;
+        // колличество суток (сутки/двое суток/трое суток/четверо суток/пятеро суток/шестеро суток/семеро суток)
+        this.rentDays = rentDays;
+        // чекбокс два цвета: серы й и черный. Формат ввода: black и grey можно выбрать два сразу
+        this.colorId = colorId;
+        // комментарии для курьера
+        this.comment = comment;
+    }
+
+    @Parameterized.Parameters(name = "Тест {index}: заказ для {0} {1} - {7} самокат")
+    // тестовые данные
+    public static Collection<Object[]> getOrderTest() {
+        return Arrays.asList(new Object[][]{
+                {"Даниэль", "Кучерявый", "Лось Анджелас, Брайтен Битч", "Новокузнецкая", "89050743762", "25.12.2025", "трое суток", "grey", "Оставить у соседки"},
+                {"Кира", "Найкли", "Париж, Карла Маркса 10", "Таганская", "+76403652736", "20.01.2026", "сутки", "black", "Мы будем кататься всей семьёй разом на одном"},
+                {"Асидора", "Крипошвилли", "Пекин, Патрики 10", "Китай-город", "+79016453728", "30.11.2025", "семеро суток", "black", "Так здорово кататься в минус 20!"}
+        });
+    }
+
+    // метод для старта драйвера хром
+    @Before
+    public void startDriverChrome() {
+        ChromeOptions options = new ChromeOptions();
+        options.addArguments("--no-sandbox", "--headless", "--disable-dev-shm-usage");
+
+        WebDriverManager.chromedriver().setup();
+        driver = new ChromeDriver(options);
+        homePage = new HomePageScooter(driver);
+        scooterOrder = new ScooterOrderPage(driver);
+        orderDetails =  new OrderDetailsPage(driver);
+
+        driver.manage().timeouts().implicitlyWait(3, TimeUnit.SECONDS);
+        driver.get("https://qa-scooter.praktikum-services.ru/");
+        homePage.acceptCookies();
+
+}
+
+    /* метод для старта драйвера хром фокс
+    @Before
+    public void startDriverFirefox() {
+
+        FirefoxOptions options = new FirefoxOptions();
+        options.setBinary("/Applications/Firefox.app/Contents/MacOS/firefox");
+        options.addArguments("--no-sandbox", "--disable-dev-shm-usage");
+        WebDriverManager.firefoxdriver().setup();
+        driver = new FirefoxDriver(options);
+        homePage = new HomePageScooter(driver);
+        scooterOrder = new ScooterOrderPage(driver);
+        orderDetails =  new OrderDetailsPage(driver);
+
+
+        driver.get("https://qa-scooter.praktikum-services.ru/");
+        // клик по кнопке принять кукис да все привыкли
+        homePage.acceptCookies();
+    } */
+    @After
+    public void tearDown() {
+        driver.quit();
+    }
+
+    @Test
+    // оформление заказа, нажатие кнопки Заказать в правом верхнем углу
+    public void upperOrderButtonFTest() {
+        // неявное ожидание
+        driver.manage().timeouts().implicitlyWait(3, TimeUnit.SECONDS);
+        // клик по кнопке Заказать
+        homePage.clickFirstOrderButton();
+
+        // метод для ввода данных в поля
+        scooterOrder.completeOrderForm(firstName, lastName, address, metroStation, phoneNumber);
+
+        //вторая страница про аренду: метод заполняет все поля и кликает кнопку Заказать и кнопку Да
+        orderDetails.fillOrderDetailsAndSubmit(date, rentDays, colorId, comment);
+        // получаем текст подтверждения
+        String text = orderDetails.getOrderConfirmationText();
+        assertTrue(text.contains("Заказ оформлен"));
+
+    }
+
+        // оформление заказа, нажатие кнопки Заказать внизу страницы
+
+        @Test
+        public void lowerOrderButtonTest() {
+
+            // неявное ожидание
+            driver.manage().timeouts().implicitlyWait(3, TimeUnit.SECONDS);
+
+            // скролл  клик по кнопке Заказать внизу страницы
+            homePage.clickBottomOrderButton();
+
+            // метод для ввода данных в поля
+            scooterOrder.completeOrderForm(firstName, lastName, address, metroStation, phoneNumber);
+
+            //вторая страница про аренду: метод заполняет все поля и кликает кнопку Заказать и кнопку Да
+            orderDetails.fillOrderDetailsAndSubmit(date, rentDays, colorId, comment);
+
+    // получаем текст подтверждения
+            String text = orderDetails.getOrderConfirmationText();
+            assertTrue(text.contains("Заказ оформлен"));
+
+        }
+}
