@@ -1,32 +1,15 @@
 package tests;
+
 import static constants.ValidationMessages.*;
 import static org.junit.Assert.assertEquals;
-
-import io.github.bonigarcia.wdm.WebDriverManager;
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.chrome.ChromeDriver;
-import org.openqa.selenium.chrome.ChromeOptions;
-import pageobject.HomePageScooter;
-import pageobject.OrderDetailsPage;
-import pageobject.ScooterOrderPage;
-
-import java.time.Duration;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.concurrent.TimeUnit;
-
 
 @RunWith(Parameterized.class)
-public class ScooterOrderNegativeTest {
-    public WebDriver driver;
-    public HomePageScooter homePage;
-    public ScooterOrderPage scooterOrderPage;
-    public OrderDetailsPage orderDetailsPage;
+public class ScooterOrderNegativeTest extends BaseTest{
 
     // параметры, которые будут применяться в тестах
     String caseName;
@@ -41,7 +24,6 @@ public class ScooterOrderNegativeTest {
     String comment;
     //поле для ошибки
     String expectedError;
-
 
     // конструктор
     public ScooterOrderNegativeTest(String caseName, String firstName, String lastName, String address, String metroStation, String phoneNumber, String date, String rentDays, String colorId, String comment, String expectedError) {
@@ -131,52 +113,9 @@ public class ScooterOrderNegativeTest {
         });
     }
 
-
-// метод для старта драйвера хром
-     @Before
-     public void startDriverChrome() {
-        ChromeOptions options = new ChromeOptions();
-        options.addArguments("--no-sandbox", "--headless", "--disable-dev-shm-usage");
-
-        WebDriverManager.chromedriver().setup();
-        driver = new ChromeDriver(options);
-         homePage = new HomePageScooter(driver);
-         scooterOrderPage = new ScooterOrderPage(driver);
-         orderDetailsPage = new OrderDetailsPage(driver);
-
-        driver.manage().timeouts().implicitlyWait(3, TimeUnit.SECONDS);
-        driver.get("https://qa-scooter.praktikum-services.ru/");
-         homePage.acceptCookies();
-    }
-
-    /* метод для старта драйвера хром фокс
-    @Before
-    public void startDriverFirefox() {
-
-        FirefoxOptions options = new FirefoxOptions();
-        options.setBinary("/Applications/Firefox.app/Contents/MacOS/firefox");
-        options.addArguments("--no-sandbox", "--disable-dev-shm-usage");
-        WebDriverManager.firefoxdriver().setup();
-        driver = new FirefoxDriver(options);
-        homePage = new HomePageScooter(driver);
-        scooterOrderPage = new ScooterOrderPage(driver);
-        orderDetailsPage = new OrderDetailsPage(driver);
-
-
-        driver.get("https://qa-scooter.praktikum-services.ru/");
-        // клик по кнопке принять кукис да все привыкли
-        homePage.acceptCookies();
-    } */
-
-    @After
-    public void tearDown() {
-        driver.quit();
-    }
-
     @Test
     public void invalidTest() {
-        // неявное ожидание
-        driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(3));
+
         // клик по кнопке Заказать
         homePage.clickFirstOrderButton();
 
@@ -184,29 +123,29 @@ public class ScooterOrderNegativeTest {
         switch (caseName) {
             case "Пустое поле Имя":
             case "Невалидное имя":
-                scooterOrderPage.setFirstName(firstName);
-                scooterOrderPage.unfocus();
+                scooterOrder.setFirstName(firstName);
+                scooterOrder.unfocus();
                 break;
 
             case "Пустое поле Фамилия":
             case "Невалидная фамилия":
-                scooterOrderPage.setLastName(lastName);
-                scooterOrderPage.unfocus();
+                scooterOrder.setLastName(lastName);
+                scooterOrder.unfocus();
                 break;
 
             case "Пустое поле адрес":
-                scooterOrderPage.setAddress(address);
-                scooterOrderPage.unfocus();
+                scooterOrder.setAddress(address);
+                scooterOrder.unfocus();
                 break;
 
             case "Пустое поле метро":
-                scooterOrderPage.unfocus(); // ничего не выбираем
+                scooterOrder.unfocus(); // ничего не выбираем
                 break;
 
             case "Пустое поле номер телефона":
             case "Невалидный номер телефона":
-                scooterOrderPage.setPhone(phoneNumber);
-                scooterOrderPage.unfocus();
+                scooterOrder.setPhone(phoneNumber);
+                scooterOrder.unfocus();
                 break;
         }
 
@@ -219,21 +158,21 @@ public class ScooterOrderNegativeTest {
         switch (caseName) {
             case "Пустое поле Имя":
             case "Невалидное имя":
-                return scooterOrderPage.getFirstNameErrorText();
+                return scooterOrder.getFirstNameErrorText();
 
             case "Пустое поле Фамилия":
             case "Невалидная фамилия":
-                return scooterOrderPage.getLastNameErrorText();
+                return scooterOrder.getLastNameErrorText();
 
             case "Пустое поле адрес":
-                return scooterOrderPage.getAddressErrorText();
+                return scooterOrder.getAddressErrorText();
 
             case "Пустое поле метро":
-                return scooterOrderPage.getMetroErrorText();
+                return scooterOrder.getMetroErrorText();
 
             case "Пустое поле номер телефона":
             case "Невалидный номер телефона":
-                return scooterOrderPage.getPhoneErrorText();
+                return scooterOrder.getPhoneErrorText();
 
             default:
                 return "";

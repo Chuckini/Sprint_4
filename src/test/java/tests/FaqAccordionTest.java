@@ -1,28 +1,14 @@
 package tests;
 
-import io.github.bonigarcia.wdm.WebDriverManager;
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.chrome.ChromeDriver;
-import org.openqa.selenium.chrome.ChromeOptions;
-
-import pageobject.HomePageScooter;
-
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.concurrent.TimeUnit;
-
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
     @RunWith(Parameterized.class)
-    public class FaqAccordionTest {
-        private WebDriver driver;
-        private HomePageScooter homePage;
+    public class FaqAccordionTest extends BaseTest {
 
         // параметры которые нужно передать в тесте
         int index;
@@ -53,30 +39,10 @@ import static org.junit.Assert.assertTrue;
             });
         }
 
-// метод для старта драйвера хром
-    @Before
-    public void startDriverChrome() {
-        ChromeOptions options = new ChromeOptions();
-        options.addArguments("--no-sandbox", "--headless", "--disable-dev-shm-usage");
-
-        WebDriverManager.chromedriver().setup();
-        driver = new ChromeDriver(options);
-        homePage = new HomePageScooter(driver);
-
-        driver.get("https://qa-scooter.praktikum-services.ru/");
-    }
-
-    @After
-    // после теста закрыть браузер
-    public void tearDown() {
-        driver.quit();
-    }
-
     @Test
     //  метод для скролла и открытия вопросов и ответов, сравнение текста
     public void checkAccordion() {
-        homePage.acceptCookies();
-        driver.manage().timeouts().implicitlyWait(7, TimeUnit.SECONDS);
+
         homePage.clickAccordionButton(index);
         homePage.getAccordionAnswerText(index, expectedText);
         // проверяем соответствие текста

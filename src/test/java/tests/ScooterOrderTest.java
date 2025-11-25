@@ -1,32 +1,13 @@
 package tests;
-import org.openqa.selenium.*;
-import io.github.bonigarcia.wdm.WebDriverManager;
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.chrome.ChromeDriver;
-import org.openqa.selenium.chrome.ChromeOptions;
-import pageobject.HomePageScooter;
-import pageobject.OrderDetailsPage;
-import pageobject.ScooterOrderPage;
-
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.concurrent.TimeUnit;
-
 import static org.junit.Assert.assertTrue;
 
 @RunWith(Parameterized.class)
-public class ScooterOrder {
-    public WebDriver driver;
-    public HomePageScooter homePage;
-    public ScooterOrderPage scooterOrder;
-    public OrderDetailsPage orderDetails;
-
-
+public class ScooterOrderTest extends BaseTest {
 
     // параметры, которые будут применяться в тестах
     String firstName;
@@ -40,7 +21,7 @@ public class ScooterOrder {
     String comment;
 
     // конструктор
-    public ScooterOrder(String firstName, String lastName, String address, String metroStation, String phoneNumber, String date, String rentDays, String colorId, String comment) {
+    public ScooterOrderTest(String firstName, String lastName, String address, String metroStation, String phoneNumber, String date, String rentDays, String colorId, String comment) {
         //Имя
         this.firstName = firstName;
         // Фамилия
@@ -71,59 +52,17 @@ public class ScooterOrder {
         });
     }
 
-    // метод для старта драйвера хром
-    @Before
-    public void startDriverChrome() {
-        ChromeOptions options = new ChromeOptions();
-        options.addArguments("--no-sandbox", "--headless", "--disable-dev-shm-usage");
-
-        WebDriverManager.chromedriver().setup();
-        driver = new ChromeDriver(options);
-        homePage = new HomePageScooter(driver);
-        scooterOrder = new ScooterOrderPage(driver);
-        orderDetails =  new OrderDetailsPage(driver);
-
-        driver.manage().timeouts().implicitlyWait(3, TimeUnit.SECONDS);
-        driver.get("https://qa-scooter.praktikum-services.ru/");
-        homePage.acceptCookies();
-
-}
-
-    /* метод для старта драйвера хром фокс
-    @Before
-    public void startDriverFirefox() {
-
-        FirefoxOptions options = new FirefoxOptions();
-        options.setBinary("/Applications/Firefox.app/Contents/MacOS/firefox");
-        options.addArguments("--no-sandbox", "--disable-dev-shm-usage");
-        WebDriverManager.firefoxdriver().setup();
-        driver = new FirefoxDriver(options);
-        homePage = new HomePageScooter(driver);
-        scooterOrder = new ScooterOrderPage(driver);
-        orderDetails =  new OrderDetailsPage(driver);
-
-
-        driver.get("https://qa-scooter.praktikum-services.ru/");
-        // клик по кнопке принять кукис да все привыкли
-        homePage.acceptCookies();
-    } */
-    @After
-    public void tearDown() {
-        driver.quit();
-    }
-
     @Test
-    // оформление заказа, нажатие кнопки Заказать в правом верхнем углу
+    // оформление заказа, нажатие кнопки "Заказать" в правом верхнем углу
     public void upperOrderButtonFTest() {
-        // неявное ожидание
-        driver.manage().timeouts().implicitlyWait(3, TimeUnit.SECONDS);
+
         // клик по кнопке Заказать
         homePage.clickFirstOrderButton();
 
         // метод для ввода данных в поля
         scooterOrder.completeOrderForm(firstName, lastName, address, metroStation, phoneNumber);
 
-        //вторая страница про аренду: метод заполняет все поля и кликает кнопку Заказать и кнопку Да
+        //вторая страница про аренду: метод заполняет все поля и кликает кнопку "Заказать" и кнопку Да
         orderDetails.fillOrderDetailsAndSubmit(date, rentDays, colorId, comment);
         // получаем текст подтверждения
         String text = orderDetails.getOrderConfirmationText();
@@ -131,21 +70,18 @@ public class ScooterOrder {
 
     }
 
-        // оформление заказа, нажатие кнопки Заказать внизу страницы
+        // оформление заказа, нажатие кнопки "Заказать" внизу страницы
 
         @Test
         public void lowerOrderButtonTest() {
 
-            // неявное ожидание
-            driver.manage().timeouts().implicitlyWait(3, TimeUnit.SECONDS);
-
-            // скролл  клик по кнопке Заказать внизу страницы
+            // скролл, клик по кнопке "Заказать" внизу страницы
             homePage.clickBottomOrderButton();
 
             // метод для ввода данных в поля
             scooterOrder.completeOrderForm(firstName, lastName, address, metroStation, phoneNumber);
 
-            //вторая страница про аренду: метод заполняет все поля и кликает кнопку Заказать и кнопку Да
+            //вторая страница про аренду: метод заполняет все поля и кликает кнопку "Заказать" и кнопку Да
             orderDetails.fillOrderDetailsAndSubmit(date, rentDays, colorId, comment);
 
     // получаем текст подтверждения
